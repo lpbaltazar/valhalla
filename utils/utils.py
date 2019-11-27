@@ -10,8 +10,13 @@ import pandas as pd
 def readCSV(filename, cols = None):
 
 	if cols is not None:
-		cols = list(cols)
-		data = pd.read_csv(filename, sep=",", usecols=cols, nrows = 10000)
+		timestamps = [s for s in cols if "timestamp" in s]
+		
+		if timestamps:
+			data = pd.read_csv(filename, sep=",", usecols=cols, nrows = 1000, parse_dates=timestamps)
+		else:
+			data = pd.read_csv(filename, sep=",", usecols=cols, nrows = 1000, parse_dates=timestamps)
+
 	else:
 		data = pd.read_csv(filename, sep=",", nrows = 10000)
 
@@ -29,8 +34,7 @@ def readCSVAsArray(filename):
 def toCSV(data, outfile):
 
 	if os.path.isfile(outfile):
-		with open(outfile, "a") as csv:
-			data.to_csv(csv, header=False, index=False)
+		data.to_csv(outfile, mode="a", index=False, header=False)
 
 	else:
 		data.to_csv(outfile, index=False)
@@ -62,5 +66,6 @@ def add_id(data):
 	ids = readCSV("../data/id.csv")
 
 	data = data.merge(ids, how = "left", on = ["bigdatasessionid", "pagetitle"])
+	data = data.drop(["bigdatasessionid", "pagetitle"], axis=1)
 
 	return data
