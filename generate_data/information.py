@@ -83,6 +83,7 @@ def getInformation(filename, mode):
 
 	data = readCSV(filename, cols=usecols)
 	data = data.drop_duplicates(subset=drop_cols)
+	data = add_id(data)
 
 	toCSV(data, "../results/"+filename[-6:-4]+ "/" + mode + "_information.csv")
 
