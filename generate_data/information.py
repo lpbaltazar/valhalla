@@ -63,10 +63,7 @@ def getReferralInformation(filename):
 
 	data["referraltype"] = data[["currentwebpage", "previouswebpage"]].apply(lambda x: get_referraltype(x), axis = 1)
 
-	print(data["referraltype"].value_counts())
-
 	data = add_id(data)
-	print(data)
 
 	outfile = "../results/"+filename[-6:-4]+"/referral_information.csv"
 	
@@ -74,7 +71,7 @@ def getReferralInformation(filename):
 
 	e = time.time()
 	print("Runtime getReferralInformation: ", time.strftime("%H:%M:%S", time.gmtime(e-s)))
-	
+
 
 if __name__ == '__main__':
 	
