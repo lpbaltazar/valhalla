@@ -63,4 +63,32 @@ def add_id(data):
 
 	data = data.merge(ids, how = "left", on = ["bigdatasessionid", "pagetitle"])
 
+	data.drop(["bigdatasessionid", "pagetitle"], axis = 1, inplace = True)
+	
 	return data
+
+
+def build(filename):
+
+	data_dir = "../results/"+filename[-6:-4]
+
+	data = readCSV("../data/id.csv")
+	data.set_index("ID", inplace = True)
+
+	print(len(data))
+	for f in os.listdir(data_dir):
+		if f.endswith("csv"):
+			print(f)
+			temp = pd.read_csv(os.path.join(data_dir, f), index_col = ["ID"])
+
+			data = data.merge(temp, how = "left", left_index = True, right_index = True)
+
+	print(len(data))
+
+	data.drop_duplicates(inplace = True)
+
+	print(len(data))
+
+if __name__ == '__main__':
+	
+	build("../data/preprocessed-data/NewsTransactionFactTable-20190911.csv")
