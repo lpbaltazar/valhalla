@@ -29,6 +29,10 @@ def getReadingDuration(filename):
 
 	data = add_id(data)
 
+	outfile = "../results/"+filename[-6:-4]+"/reading_duration.csv"
+	
+	toCSV(data, outfile)
+
 	e = time.time()
 	print("Runtime getReadingDuration: ", time.strftime("%H:%M:%S", time.gmtime(e-s)))
 
