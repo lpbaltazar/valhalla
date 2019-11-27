@@ -6,6 +6,7 @@ import re
 import sys
 import time
 
+import datetime as dt
 import numpy as np
 import pandas as pd
 
@@ -63,13 +64,6 @@ def getSessionDuration(filename):
 	data = getDateInfo(data)
 	data = add_id(data)
 
-	toCSV(data, "../results/09/session_information.csv")
+	toCSV(data, "../results/"+filename[-6:-4]+"/session_information.csv")
 
 	print("getSessionDuration RUNTIME: ", time.time() - start_time)
-
-
-if __name__ == '__main__':
-	
-	filename = "../data/preprocessed-data/NewsTransactionFactTable-20190911.csv"
-
-	getReadingDuration(filename)

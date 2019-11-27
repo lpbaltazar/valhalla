@@ -84,7 +84,7 @@ def getInformation(filename, mode):
 	data = readCSV(filename, cols=usecols)
 	data = data.drop_duplicates(subset=drop_cols)
 
-	toCSV(data, "../results/09/" + mode + "_information.csv")
+	toCSV(data, "../results/"+filename[-6:-4]+ "/" + mode + "_information.csv")
 
 
 def getUserInformation(filename):
@@ -102,7 +102,7 @@ def getUserInformation(filename):
 
 	data = add_id(data)
 	
-	toCSV(data, "../results/09/user_information.csv")
+	toCSV(data, "../results/"+filename[-6:-4]+"/user_information.csv")
 
 	print(">>>>>>>>>> getUserInformation RUNTIME: ", time.time() - start_time)
 	
