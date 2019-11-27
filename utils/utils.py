@@ -8,17 +8,14 @@ import numpy as np
 import pandas as pd
 
 def readCSV(filename, cols = None):
-
-	if cols is not None:
-		timestamps = [s for s in cols if "timestamp" in s]
-		
-		if timestamps:
-			data = pd.read_csv(filename, sep=",", usecols=cols, nrows = 1000, parse_dates=timestamps)
-		else:
-			data = pd.read_csv(filename, sep=",", usecols=cols, nrows = 1000, parse_dates=timestamps)
+	if cols is not None:	
+		timestamps = [s for s in cols if "timestamp" in s]	
+		data = pd.read_csv(filename, sep=",", usecols=cols, parse_dates=timestamps, low_memory=False, memory_map=True, nrows=100000)
 
 	else:
-		data = pd.read_csv(filename, sep=",", nrows = 10000)
+		data = pd.read_csv(filename, sep=",", low_memory=False, memory_map=True, nrows=10000)
+
+	#data = pd.concat(data)
 
 	return data
 
@@ -31,13 +28,22 @@ def readCSVAsArray(filename):
 	return df
 
 
-def toCSV(data, outfile):
+def toCSV(data, outfile, filename):
+	source_dir = "../results/09/"
+	
+	filename = filename.split("/")[-1]
+	filename = filename.split("-")[-1]
+	filename = filename.split(".")[0]
+	filename = filename.replace("2019", "")
+	filename = filename[-2:]
+	data_dir = os.path.join(source_dir, filename)
 
-	if os.path.isfile(outfile):
-		data.to_csv(outfile, mode="a", index=False, header=False)
+	if not os.path.isdir(data_dir):
+		os.mkdir(data_dir)
 
-	else:
-		data.to_csv(outfile, index=False)
+	outfile = os.path.join(data_dir, outfile)
+
+	data.to_csv(outfile, index=False)
 
 
 def mergeDF(df1, df2, key):
@@ -67,8 +73,6 @@ def add_id(data):
 
 	data = data.merge(ids, how = "left", on = ["bigdatasessionid", "pagetitle"])
 	data = data.drop(["bigdatasessionid", "pagetitle"], axis=1)
-
-	data.drop(["bigdatasessionid", "pagetitle"], axis = 1, inplace = True)
 	
 	return data
 

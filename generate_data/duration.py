@@ -30,9 +30,10 @@ def getReadingDuration(filename):
 
 	data = add_id(data)
 
-	outfile = "../results/"+filename[-6:-4]+"/reading_duration.csv"
-	
-	toCSV(data, outfile)
+	#outfile = "../results/"+filename[-6:-4]+"/reading_duration.csv"
+	#toCSV(data, outfile, filename)
+
+	toCSV(data, "reading_duration.csv", filename)
 
 	e = time.time()
 	print("Runtime getReadingDuration: ", time.strftime("%H:%M:%S", time.gmtime(e-s)))
@@ -54,6 +55,8 @@ def getSessionDuration(filename):
 
 	usecols = ["bigdatasessionid", "pagetitle", "sessionstarttimestamp", "sessionendtimestamp"]
 	data = readCSV(filename, usecols)
+	data = data.drop(data.loc[data.sessionendtimestamp=="NaN/NaN/NaN NaN:NaN:NaN.NaN"].index)
+	data.sessionendtimestamp = data.sessionendtimestamp.astype("datetime64[ns]")  
 
 	data = data \
 		.groupby(["bigdatasessionid", "pagetitle"])["sessionstarttimestamp", "sessionendtimestamp"] \
@@ -61,9 +64,10 @@ def getSessionDuration(filename):
 		.pipe(pd.DataFrame) \
 		.reset_index()
 
+	data.loc[:, "session_duration"] = (data.sessionendtimestamp - data.sessionstarttimestamp)/np.timedelta64(1,'s')
 	data = getDateInfo(data)
 	data = add_id(data)
 
-	toCSV(data, "../results/"+filename[-6:-4]+"/session_information.csv")
+	toCSV(data, "session_information.csv", filename)
 
-	print("getSessionDuration RUNTIME: ", time.time() - start_time)
+	print(">>>>>>>>>> getSessionDuration RUNTIME: ", time.time() - start_time)
