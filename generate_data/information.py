@@ -11,7 +11,7 @@ import pandas as pd
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from utils.utils import readCSV, add_id, toCSV
+from utils.utils import readCSV, add_id, toCSV, readCSVAsArray
 
 
 def get_referraltype(x):
@@ -73,8 +73,36 @@ def getReferralInformation(filename):
 	print("Runtime getReferralInformation: ", time.strftime("%H:%M:%S", time.gmtime(e-s)))
 
 
-if __name__ == '__main__':
-	
-	filename = "../data/preprocessed-data/NewsTransactionFactTable-20190911.csv"
+def getInformation(filename, mode):
+	if mode == "content":
+		usecols = readCSVAsArray("../data/content_information.csv")
+		drop_cols = ["pagetitle", "videourl"]
+	else:
+		usecols =readCSVAsArray("../data/device_information.csv")
+		drop_cols = usecols[:-1]
 
-	getReferralInformation(filename)
+	data = readCSV(filename, cols=usecols)
+	data = data.drop_duplicates(subset=drop_cols)
+
+	toCSV(data, "../results/09/" + mode + "_information.csv")
+
+
+def getUserInformation(filename):
+	start_time = time.time()
+
+	usecols = ["bigdatasessionid", "pagetitle", "gigyaid", "fingerprintid", "bigdatacookieid"]
+	data = readCSV(filename, usecols)
+	data = data.drop_duplicates(subset=usecols[:-2])
+
+	data.loc[:, "userid"] = data.gigyaid
+	data.loc[data.userid.isnull(), "userid"] = data.fingerprintid.map(str) + "_" + data.bigdatacookieid.map(str)
+
+	data.loc[:, "usertype"] = "NOTLOGGEDIN"
+	data.loc[~data.gigyaid.isnull(), "usertype"] = "LOGGEDIN"
+
+	data = add_id(data)
+	
+	toCSV(data, "../results/09/user_information.csv")
+
+	print(">>>>>>>>>> getUserInformation RUNTIME: ", time.time() - start_time)
+	
