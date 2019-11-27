@@ -7,17 +7,23 @@ import time
 import numpy as np
 import pandas as pd
 
-def readCSV(filename, cols):
+def readCSV(filename, cols = None):
 
-	cols = list(cols)
-
-	if not cols:
-		data = pd.read_csv(filename, sep=",")
-
+	if cols is not None:
+		cols = list(cols)
+		data = pd.read_csv(filename, sep=",", usecols=cols, nrows = 10000)
 	else:
-		data = pd.read_csv(filename, sep=",", usecols=cols)
+		data = pd.read_csv(filename, sep=",", nrows = 10000)
 
 	return data
+
+
+def readCSVAsArray(filename):
+	df = pd.read_csv(filename, sep=",", header=None)
+	df = df.values
+	df = df.reshape((len(df),))
+
+	return df
 
 
 def toCSV(data, outfile):
@@ -46,6 +52,15 @@ def get_rows(data, action):
 
 def drop_rows(data, subset):
 
-	data.dropna(subset = subset, inplace = True)
+	data.dropna(subset = subset, how = "all", inplace = True)
+
+	return data
+
+
+def add_id(data):
+
+	ids = readCSV("../data/id.csv")
+
+	data = data.merge(ids, how = "left", on = ["bigdatasessionid", "pagetitle"])
 
 	return data
