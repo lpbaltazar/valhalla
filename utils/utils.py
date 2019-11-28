@@ -13,9 +13,9 @@ def readCSV(filename, cols = None):
 		timestamps = [s for s in cols if "timestamp" in s]
 		
 		if timestamps:
-			data = pd.read_csv(filename, sep=",", usecols=cols, nrows = 1000, parse_dates=timestamps)
+			data = pd.read_csv(filename, sep=",", usecols=cols, nrows = 10000, parse_dates=timestamps)
 		else:
-			data = pd.read_csv(filename, sep=",", usecols=cols, nrows = 1000, parse_dates=timestamps)
+			data = pd.read_csv(filename, sep=",", usecols=cols, nrows = 10000, parse_dates=timestamps)
 
 	else:
 		data = pd.read_csv(filename, sep=",", nrows = 10000)
@@ -66,9 +66,8 @@ def add_id(data):
 	ids = readCSV("../data/id.csv")
 
 	data = data.merge(ids, how = "left", on = ["bigdatasessionid", "pagetitle"])
+	
 	data = data.drop(["bigdatasessionid", "pagetitle"], axis=1)
-
-	data.drop(["bigdatasessionid", "pagetitle"], axis = 1, inplace = True)
 	
 	return data
 
@@ -93,6 +92,8 @@ def build(filename):
 	data.drop_duplicates(inplace = True)
 
 	print(len(data))
+
+	print(data.isnull().sum(axis = 0))
 
 if __name__ == '__main__':
 	
