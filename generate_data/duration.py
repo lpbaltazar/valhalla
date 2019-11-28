@@ -22,11 +22,11 @@ def getReadingDuration(filename):
 
 	data = readCSV(filename, cols)
 
-	data = data.groupby(["bigdatasessionid", "pagetitle"])["articlecontentamount", "readingduration", "viewpageduration", "pagedepth"].agg(['max', 'sum'])
+	data = data.groupby(["bigdatasessionid", "pagetitle"])["articlecontentamount", "readingduration", "viewpageduration", "pagedepth"].agg(['sum'])
 
 	data.columns = data.columns.to_flat_index()
 
-	data.columns = ['_'.join(col) for col in data.columns]
+	data.columns = [col[0] for col in data.columns]
 
 	data = add_id(data)
 
