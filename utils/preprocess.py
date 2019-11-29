@@ -9,7 +9,7 @@ import pandas as pd
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from utils import readCSV, readCSVAsArray, get_rows, drop_rows, toCSV
+from utils.utils import readCSV, readCSVAsArray, get_rows, drop_rows, toCSV
 
 
 def clean_pagetitle(df):
@@ -30,25 +30,22 @@ def generateID(df):
 
 
 def preprocess(filename):
-	# GENERATE actiontaken.csv FILE
+	cols = readCSVAsArray("../data/colnames.csv")
 	actiontaken = readCSVAsArray("../data/actiontaken.csv")
 	
-	data = readCSV(filename)
+	data = readCSV(filename, cols)
 	data = get_rows(data, actiontaken)
 	data = drop_rows(data, subset=["readarticle", "pagetitle", "videourl"])
-	data = drop_rows(data, subset=["bigdatasessionid", "bigdatacookieid"])
+	data = drop_rows(data, subset=["bigdatasessionid"])
+	data = drop_rows(data, subset=["bigdatacookieid"])
+	data = drop_rows(data, subset=["fingerprintid"])
 
 	data = clean_pagetitle(data)
 
 	data_directory = "../data/preprocessed-data/"
 	if not os.path.isdir(data_directory):
 		os.mkdir(data_directory)
-	toCSV(data, os.path.join(data_directory, filename.split("/")[-1]))
+
+	data.to_csv(os.path.join(data_directory, filename.split("/")[-1]), index=False)
 
 	generateID(data[["pagetitle", "bigdatasessionid"]])
-
-
-
-if __name__ == "__main__":
-	filename = "../data/01/NewsTransactionFactTable-20190101.csv"
-	preprocess(filename)

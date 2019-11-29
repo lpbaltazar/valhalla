@@ -74,6 +74,8 @@ def getReferralInformation(filename):
 
 
 def getInformation(filename, mode):
+	start_time = time.time()
+
 	if mode == "content":
 		usecols = readCSVAsArray("../data/content_information.csv")
 		drop_cols = ["pagetitle", "videourl"]
@@ -85,7 +87,9 @@ def getInformation(filename, mode):
 	data = data.drop_duplicates(subset=drop_cols)
 	data = add_id(data)
 
-	toCSV(data, "../results/"+filename[-6:-4]+ "/" + mode + "_information.csv")
+	toCSV(data, mode + "_information.csv", filename)
+
+	print("getInformation_", mode, " RUNTIME: ", time.time() - start_time)
 
 
 def getUserInformation(filename):
@@ -103,7 +107,7 @@ def getUserInformation(filename):
 
 	data = add_id(data)
 	
-	toCSV(data, "../results/"+filename[-6:-4]+"/user_information.csv")
+	toCSV(data, "user_information.csv", filename)
 
 	print(">>>>>>>>>> getUserInformation RUNTIME: ", time.time() - start_time)
 	
