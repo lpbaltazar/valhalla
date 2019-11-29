@@ -15,7 +15,7 @@ from utils.utils import readCSV, add_id, toCSV, readCSVAsArray
 
 
 def get_referraltype(x):
-	
+
 	if pd.isnull(x[1]):
 		return "DIRECT"
 	elif check(x[1], "social"):
@@ -61,16 +61,18 @@ def getReferralInformation(filename):
 	
 	data = readCSV(filename, cols = cols)
 
+	data.dropna(subset = ["currentwebpage"], inplace = True)
+
 	data["referraltype"] = data[["currentwebpage", "previouswebpage"]].apply(lambda x: get_referraltype(x), axis = 1)
 
 	data = add_id(data)
 
-	outfile = "../results/"+filename[-6:-4]+"/referral_information.csv"
+	data.dropna(subset = ["ID"], inplace = True)
 	
-	toCSV(data, outfile)
+	toCSV(data, "referral_information.csv", filename)
 
 	e = time.time()
-	print("Runtime getReferralInformation: ", time.strftime("%H:%M:%S", time.gmtime(e-s)))
+	print("Runtime getReferralInformation: ", time.strftime("%H:%M:%S", time.gmtime(e-s)), "\n")
 
 
 def getInformation(filename, mode):
@@ -89,7 +91,7 @@ def getInformation(filename, mode):
 
 	toCSV(data, mode + "_information.csv", filename)
 
-	print("getInformation_", mode, " RUNTIME: ", time.time() - start_time)
+	print("getInformation_", mode, " RUNTIME: ", time.time() - start_time, "\n")
 
 
 def getUserInformation(filename):
@@ -109,5 +111,5 @@ def getUserInformation(filename):
 	
 	toCSV(data, "user_information.csv", filename)
 
-	print(">>>>>>>>>> getUserInformation RUNTIME: ", time.time() - start_time)
+	print(">>>>>>>>>> getUserInformation RUNTIME: ", time.time() - start_time, "\n")
 	
