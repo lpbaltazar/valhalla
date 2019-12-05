@@ -4,7 +4,7 @@ warnings.filterwarnings("ignore")
 import os
 import glob
 
-from utils.preprocess import preprocess
+from utils.preprocess import preprocess, preprocessChunk
 from utils.utils import build
 from generate_data.information import getInformation, getUserInformation, getReferralInformation 
 from generate_data.duration import getSessionDuration, getReadingDuration
@@ -24,7 +24,8 @@ if __name__ == '__main__':
 			../data/preprocessed-data/<filename>
 		'''
 		
-		preprocess(f)
+		# preprocess(f)
+		preprocessChunk(f)
 
 		f = f.replace("09/", "preprocessed-data/")
 
