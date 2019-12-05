@@ -30,6 +30,9 @@ def generateID(df):
 
 
 def preprocess(filename):
+
+	s = time.time()
+
 	cols = readCSVAsArray("../data/colnames.csv")
 	actiontaken = readCSVAsArray("../data/actiontaken.csv")
 	
@@ -49,3 +52,45 @@ def preprocess(filename):
 	data.to_csv(os.path.join(data_directory, filename.split("/")[-1]), index=False)
 
 	generateID(data[["pagetitle", "bigdatasessionid"]])
+
+	e = time.time()
+	print("Runtime preprocess: ", time.strftime("%H:%M:%S", time.gmtime(e-s)), "\n")
+
+
+def preprocessChunk(filename):
+
+	s = time.time()
+
+	cols = readCSVAsArray("../data/colnames.csv")
+	timestamps = [s for s in cols if "timestamp" in s]
+	actiontaken = readCSVAsArray("../data/actiontaken.csv")
+	
+	data = []
+	chunks = pd.read_csv(filename, sep=",", usecols=cols, parse_dates=timestamps, low_memory=False, memory_map=True, chunksize = 5000000)
+	for i, chunk in enumerate(chunks):
+		print(i, end = "\r")
+		curr = get_rows(chunk, actiontaken)
+		curr = drop_rows(curr, subset=["readarticle", "pagetitle", "videourl"])
+		curr = drop_rows(curr, subset=["bigdatasessionid"])
+		curr = drop_rows(curr, subset=["bigdatacookieid"])
+		curr = drop_rows(curr, subset=["fingerprintid"])
+		curr = clean_pagetitle(curr)
+		data.append(curr)
+
+	data = pd.concat(data)
+	data_directory = "../data/preprocessed-data/"
+	if not os.path.isdir(data_directory):
+		os.mkdir(data_directory)
+
+	data.to_csv(os.path.join(data_directory, filename.split("/")[-1]), index=False)
+
+	generateID(data[["pagetitle", "bigdatasessionid"]])
+
+	e = time.time()
+	print("Runtime preprocess: ", time.strftime("%H:%M:%S", time.gmtime(e-s)), "\n")
+
+
+if __name__ == '__main__':
+	filename = "../data/09/NewsTransactionFactTable-20190911.csv"
+
+	preprocessed(filename)
