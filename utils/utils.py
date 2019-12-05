@@ -67,6 +67,8 @@ def add_id(data):
 	data = data.merge(ids, how = "left", on = ["bigdatasessionid", "pagetitle"])
 	
 	data = data.drop(["bigdatasessionid", "pagetitle"], axis=1)
+
+	data.drop_duplicates(inplace = True)
 	
 	return data
 
@@ -101,9 +103,11 @@ def build(filename):
 
 	for f in sorted(filenames):
 		print(f)
-		if "referral_information" in f: continue
-				
-		temp = pd.read_csv(f, index_col = ["ID"])
+		if "referral_information" in f:
+			temp = pd.read_csv(f, index_col = ["ID"], usecols = ["ID", "referraltype"])				
+		
+		else:
+			temp = pd.read_csv(f, index_col = ["ID"])
 
 		data = data.merge(temp, how = "left", left_index = True, right_index = True)
 
