@@ -19,12 +19,17 @@ def clean_pagetitle(df):
 
 
 def generateID(df):
+
+	print("generating IDs")
 	pagetitles = pd.DataFrame(df.pagetitle.unique(), columns=["pagetitle"])
 	pagetitles = pagetitles.reset_index(drop=False)
 	pagetitles.columns = ["iteratorid", "pagetitle"]
 	
 	df = df.merge(pagetitles, on="pagetitle")
 	df.loc[:, "ID"] = df.bigdatasessionid.map(str) + "_" + df.iteratorid.map(str)
+
+	# print(len(df))
+	# print(len(df.drop_duplicates()))
 
 	df[["bigdatasessionid", "pagetitle", "ID"]].to_csv("../data/id.csv", index=False)
 
@@ -37,14 +42,20 @@ def preprocess(filename):
 	actiontaken = readCSVAsArray("../data/actiontaken.csv")
 	
 	data = readCSV(filename, cols)
+	# print(len(data))
 	data = get_rows(data, actiontaken)
+	# print(len(data))
 	data = drop_rows(data, subset=["readarticle", "pagetitle", "videourl"])
+	# print(len(data))
 	data = drop_rows(data, subset=["bigdatasessionid"])
+	# print(len(data))
 	data = drop_rows(data, subset=["bigdatacookieid"])
+	# print(len(data))
 	data = drop_rows(data, subset=["fingerprintid"])
+	# print(len(data))
 
 	data = clean_pagetitle(data)
-
+	# print(len(data))
 	data_directory = "../data/preprocessed-data/"
 	if not os.path.isdir(data_directory):
 		os.mkdir(data_directory)

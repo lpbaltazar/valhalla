@@ -2,6 +2,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import os
+import sys
 import glob
 import time
 
@@ -66,7 +67,7 @@ def add_id(data):
 
 	data = data.merge(ids, how = "left", on = ["bigdatasessionid", "pagetitle"])
 	
-	data = data.drop(["bigdatasessionid", "pagetitle"], axis=1)
+	# data = data.drop(["bigdatasessionid", "pagetitle"], axis=1)
 
 	data.drop_duplicates(inplace = True)
 	
@@ -88,6 +89,9 @@ def build(filename):
 	s = time.time()
 
 	source_dir = "../results/09/"
+
+	# data = readCSV(filename, ["bigdatasessionid", "pagetitle"])
+	# generateID(data)
 	
 	filename = filename.split("/")[-1]
 	filename = filename.split("-")[-1]
@@ -98,23 +102,63 @@ def build(filename):
 
 	filenames = glob.glob(data_dir + "/*.csv")
 	data = readCSV("../data/id.csv")
-	data.set_index("ID", inplace = True)
+	# print(len(data))
 
 
-	for f in sorted(filenames):
-		print(f)
-		if "referral_information" in f:
-			temp = pd.read_csv(f, index_col = ["ID"], usecols = ["ID", "referraltype"])				
+	temp = pd.read_csv(os.path.join(data_dir, "user_information.csv"))
+	# print("user", len(temp))
+	data = combine(temp, data)
+
+	temp = pd.read_csv(os.path.join(data_dir, "device_information.csv"))
+	# print("device", len(temp))
+	data = combine(temp, data)
+
+	temp = pd.read_csv(os.path.join(data_dir, "content_information.csv"))
+	# print("content", len(temp))
+	data = combine(temp, data)
+
+	temp = pd.read_csv(os.path.join(data_dir, "referral_information.csv"), usecols = ["bigdatasessionid", "pagetitle", "ID", "referraltype"])
+	# print("referral", len(temp))
+	data = combine(temp, data)
+
+	temp = pd.read_csv(os.path.join(data_dir, "session_information.csv"))
+	# print("session", len(temp))
+	data = combine(temp, data)
+
+	data.dropna(subset = ["sessionstarttimestamp"], inplace = True)
+	# print("session na", len(temp))
+
+	temp = pd.read_csv(os.path.join(data_dir, "reading_information.csv"))
+	# print("reading", len(temp))
+	data = combine(temp, data)
+
+	
+	# for f in sorted(filenames):
+	# 	print(f)
+	
+	# 	temp = pd.read_csv(f)
+	# 	print(">>>>>>>>", list(temp.columns))
+	# 	data = data.merge(temp, how = "left", on = ["bigdatasessionid", "pagetitle", "ID"])
+
 		
-		else:
-			temp = pd.read_csv(f, index_col = ["ID"])
+	# 	data.drop_duplicates(inplace = True)
+	# 	print(len(data))
 
-		data = data.merge(temp, how = "left", left_index = True, right_index = True)
-
-		data.drop_duplicates(inplace = True)
-
-	print(data.head())
-	appendCSV(data.reset_index(), os.path.join(source_dir, "news_events.csv"))
+	data.dropna(subset = ["userid"], inplace = True)
+	# print(data.head())
+	# print(len(data))
+	appendCSV(data, os.path.join(source_dir, "news_events.csv"))
 
 	e = time.time()
 	print("Runtime build: ", time.strftime("%H:%M:%S", time.gmtime(e-s)), "\n")
+
+
+def combine(temp, data):
+	
+	temp = drop_rows(temp, ["ID"])
+	
+	data = data.merge(temp, how = "left", on = ["bigdatasessionid", "pagetitle", "ID"])
+	data.drop_duplicates(inplace = True)
+	print("meged", len(data))
+
+	return data

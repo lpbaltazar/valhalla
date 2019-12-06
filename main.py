@@ -4,8 +4,8 @@ warnings.filterwarnings("ignore")
 import os
 import glob
 
-from utils.preprocess import preprocess, preprocessChunk
-from utils.utils import build
+from utils.preprocess import preprocess, preprocessChunk, generateID
+from utils.utils import build, readCSV
 from generate_data.information import getInformation, getUserInformation, getReferralInformation 
 from generate_data.duration import getSessionDuration, getReadingDuration
 
@@ -14,7 +14,9 @@ if __name__ == '__main__':
 	data_dir = "../data/09/"
 	filenames = glob.glob(data_dir + "*.csv")
 
+	# count = 0
 	for f in sorted(filenames):
+		# if count == 1: continue
 		print(f)
 
 		'''
@@ -28,7 +30,7 @@ if __name__ == '__main__':
 		preprocessChunk(f)
 
 		f = f.replace("09/", "preprocessed-data/")
-
+		
 		'''
 		BUILD INFORMATION
 
@@ -73,4 +75,5 @@ if __name__ == '__main__':
 			../results/09/news_events.csv
 		'''
 
-		# build(f)
+		build(f)
+		# count = count + 1

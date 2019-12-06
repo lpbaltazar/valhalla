@@ -51,11 +51,13 @@ def getDateInfo(data):
 
 
 def getSessionDuration(filename):
-	start_time = time.time()
+	s = time.time()
 
 	usecols = ["bigdatasessionid", "pagetitle", "sessionstarttimestamp", "sessionendtimestamp"]
 	data = readCSV(filename, usecols)
+	# print(len(data))
 	data = data.drop(data.loc[data.sessionendtimestamp=="NaN/NaN/NaN NaN:NaN:NaN.NaN"].index)
+	# print(len(data))
 	data.sessionendtimestamp = data.sessionendtimestamp.astype("datetime64[ns]")  
 
 	data = data \
@@ -70,4 +72,5 @@ def getSessionDuration(filename):
 
 	toCSV(data, "session_information.csv", filename)
 
-	print(">>>>>>>>>> getSessionDuration RUNTIME: ", time.time() - start_time, "\n")
+	e = time.time()
+	print("Runtime getSessionDuration: ", time.strftime("%H:%M:%S", time.gmtime(e-s)), "\n")

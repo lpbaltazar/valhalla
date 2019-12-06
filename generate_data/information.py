@@ -61,13 +61,21 @@ def getReferralInformation(filename):
 	
 	data = readCSV(filename, cols = cols)
 
+	print(len(data))
+
 	data.dropna(subset = ["currentwebpage"], inplace = True)
+
+	print(len(data))
 
 	data["referraltype"] = data[["currentwebpage", "previouswebpage"]].apply(lambda x: get_referraltype(x), axis = 1)
 
 	data = add_id(data)
 
+	print(len(data))
+#
 	data.dropna(subset = ["ID"], inplace = True)
+
+	print(len(data))
 	
 	toCSV(data, "referral_information.csv", filename)
 
@@ -76,7 +84,7 @@ def getReferralInformation(filename):
 
 
 def getInformation(filename, mode):
-	start_time = time.time()
+	s = time.time()
 
 	if mode == "content":
 		usecols = readCSVAsArray("../data/content_information.csv")
@@ -86,20 +94,21 @@ def getInformation(filename, mode):
 		drop_cols = usecols[:-1]
 
 	data = readCSV(filename, cols=usecols)
-	data = data.drop_duplicates(subset=drop_cols)
+	# data = data.drop_duplicates(subset=drop_cols)
 	data = add_id(data)
 
 	toCSV(data, mode + "_information.csv", filename)
 
-	print("getInformation_", mode, " RUNTIME: ", time.time() - start_time, "\n")
+	e = time.time()
+	print("Runtime getInformation_", mode, ": ", time.strftime("%H:%M:%S", time.gmtime(e-s)), "\n")
 
 
 def getUserInformation(filename):
-	start_time = time.time()
+	s = time.time()
 
 	usecols = ["bigdatasessionid", "pagetitle", "gigyaid", "fingerprintid", "bigdatacookieid"]
 	data = readCSV(filename, usecols)
-	data = data.drop_duplicates(subset=usecols[:-2])
+	# data = data.drop_duplicates(subset=usecols[:-2])
 
 	data.loc[:, "userid"] = data.gigyaid
 	data.loc[data.userid.isnull(), "userid"] = data.fingerprintid.map(str) + "_" + data.bigdatacookieid.map(str)
@@ -107,9 +116,12 @@ def getUserInformation(filename):
 	data.loc[:, "usertype"] = "NOTLOGGEDIN"
 	data.loc[~data.gigyaid.isnull(), "usertype"] = "LOGGEDIN"
 
+	data.drop_duplicates(inplace = True)
+
 	data = add_id(data)
 	
 	toCSV(data, "user_information.csv", filename)
 
-	print(">>>>>>>>>> getUserInformation RUNTIME: ", time.time() - start_time, "\n")
+	e = time.time()
+	print("Runtime getUserInformation: ", time.strftime("%H:%M:%S", time.gmtime(e-s)), "\n")
 	
